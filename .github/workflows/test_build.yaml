@@ -1,0 +1,70 @@
+name: react-native-android-debug-build
+
+on:
+  watch:
+    type: [started]
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Checkout Code 
+        uses: actions/checkout@v4
+
+      - name: Install node_modules
+        run: |
+          yarn install
+          yarn add react-native-user-agent
+
+# debug path: android/app/build/outputs/apk/debug/app-debug.apk
+# release path: android/app/build/outputs/apk/release/app-release.apk
+
+# 注：如果你使用了 React Native Gradle Plugin，则其会自动执行以下命令，不需要手动执行
+# $ npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/com/your-company-name/app-package-name/src/main/assets/index.android.bundle --assets-dest android/com/your-company-name/app-package-name/src/main/res/
+
+# npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+
+      - name: build debug application
+        run: |
+          # build.gradle
+          sed -n -e '60q' -e '55,60p' android/app/build.gradle
+          sed -i '56a\
+          def enableSeparateBuildPerCPUArchitecture = true\
+          ' android/app/build.gradle
+          sed -n -e '60q' -e '55,60p' android/app/build.gradle
+          sed -i '85s/debug/release/' android/app/build.gradle
+          sed -i '91,98d' android/app/build.gradle
+          sed -n -e '100q' -e '84,85p' android/app/build.gradle
+          
+          # happy.ts ---> change ua
+          sed -i "5a\
+          import UserAgent from 'react-native-user-agent';\
+          " src/plugins/happy.ts
+          sed -n -e '10q' -e '4,10p' src/plugins/happy.ts
+          sed -i '253,255d' src/plugins/happy.ts
+          sed -i '252s/=/= UserAgent.getUserAgent();/' src/plugins/happy.ts
+          #sed -i '252,255d' src/plugins/happy.ts
+          #sed -i '251a\
+          #    const userAgent = UserAgent.getUserAgent();' src/plugins/happy.ts
+          sed -n -e '260q' -e '250, 260p' src/plugins/happy.ts
+          
+          # create bundle file
+          mkdir android/app/src/main/assets
+          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+          
+          cd android
+          ./gradlew assembleRelease 
+          ls -l app/build/outputs/apk/release
+
+      - name: Upload Application
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Upload Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: index.bundle
+          path: android/app/src/main/assets/index.android.bundle
