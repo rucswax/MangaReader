@@ -33,15 +33,16 @@ jobs:
           sed -i '84a\
               splits {\
                   abi {\
+                      enable true\
                       reset()\
                       enable enableSeparateBuildPerCPUArchitecture\
                       universalApk false\
                       include "arm64-v8a", "armeabi-v7a", "x86", "x86_64"\
                   }\
               }' android/app/build.gradle
-          sed -i '94s/debug/release/' android/app/build.gradle
-          sed -i '100,107d' android/app/build.gradle
-          sed -n -e '120q' -e '85,106p' android/app/build.gradle
+          sed -i '95s/debug/release/' android/app/build.gradle
+          sed -i '101,108d' android/app/build.gradle
+          sed -n -e '120q' -e '86,107p' android/app/build.gradle
           
           # happy.ts ---> change ua
           sed -i "5a\
