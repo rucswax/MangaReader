@@ -27,13 +27,19 @@ jobs:
 
       - name: build debug application
         run: |
-          # build.gradle
-          sed -i '56a\
-          def enableSeparateBuildPerCPUArchitecture = true' android/app/build.gradle
-          sed -n -e '60q' -e '55,60p' android/app/build.gradle
-          sed -i '86s/debug/release/' android/app/build.gradle
-          sed -i '92,99d' android/app/build.gradle
-          sed -n -e '100q' -e '85,96p' android/app/build.gradle
+          # build.gradle ---> split apk
+          sed -i '83a\
+              splits {\
+                  abi {\
+                      reset()\
+                      enable enableSeparateBuildPerCPUArchitecture\
+                      universalApk false
+                      include "arm64-v8a", "armeabi-v7a", "x86", "x86_64"\
+                  }\
+              }' android/app/build.gradle
+          sed -i '93s/debug/release/' android/app/build.gradle
+          sed -i '99,106d' android/app/build.gradle
+          sed -n -e '120q' -e '84,105p' android/app/build.gradle
           
           # happy.ts ---> change ua
           sed -i "5a\
@@ -47,19 +53,22 @@ jobs:
           #    const userAgent = UserAgent.getUserAgent();' src/plugins/happy.ts
           sed -n -e '260q' -e '250, 260p' src/plugins/happy.ts
           
+          # 根据 https://stackoverflow.com/a/63795603
+          # 说明某些版本（较新的版本）可以直接编译而无需先打包 js 文件
           # create bundle file
           #mkdir android/app/src/main/assets
           #npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
           
           cd android
-          ./gradlew assembleRelease 
+          ./gradlew assembleRelease
+          find . -name '*.apk'
           ls -l app/build/outputs/apk/release
 
-      - name: Upload Application
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-debug.apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+      # - name: Upload Application
+        # uses: actions/upload-artifact@v4
+        # with:
+          # name: app-debug.apk
+          # path: android/app/build/outputs/apk/release/app-release.apk
 
       # - name: Upload Bundle
         # uses: actions/upload-artifact@v4
