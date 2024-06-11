@@ -28,9 +28,7 @@ jobs:
       - name: build debug application
         run: |
           # build.gradle ---> split apk
-          sed -i '56a\
-              def enableSeparateBuildPerCPUArchitecture = false' android/app/build.gradle
-          sed -i '84a\
+          sed -i '83a\
               splits {\
                   abi {\
                       enable true\
@@ -39,9 +37,9 @@ jobs:
                       include "arm64-v8a", "armeabi-v7a", "x86", "x86_64"\
                   }\
               }' android/app/build.gradle
-          sed -i '94s/debug/release/' android/app/build.gradle
-          sed -i '100,107d' android/app/build.gradle
-          sed -n -e '120q' -e '70,107p' android/app/build.gradle
+          sed -i '93s/debug/release/' android/app/build.gradle
+          sed -i '99,106d' android/app/build.gradle
+          sed -n -e '120q' -e '70,106p' android/app/build.gradle
           
           # happy.ts ---> change ua
           sed -i "5a\
@@ -66,11 +64,29 @@ jobs:
           find . -name '*.apk'
           ls -l app/build/outputs/apk/release
 
-      # - name: Upload Application
-        # uses: actions/upload-artifact@v4
-        # with:
-          # name: app-debug.apk
-          # path: android/app/build/outputs/apk/release/app-release.apk
+      - name: Upload arm64-v8a
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-arm64-v8a.apk
+          path: android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
+
+      - name: Upload armeabi-v7a
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-armeabi-v7a.apk
+          path: android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+
+      - name: Upload x86
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-x86.apk
+          path: android/app/build/outputs/apk/release/app-x86-release.apk
+
+      - name: Upload x86_x64
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-x86_x64.apk
+          path: android/app/build/outputs/apk/release/app-x86_x64-release.apk
 
       # - name: Upload Bundle
         # uses: actions/upload-artifact@v4
