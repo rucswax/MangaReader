@@ -28,7 +28,9 @@ jobs:
       - name: build debug application
         run: |
           # build.gradle ---> split apk
-          sed -i '83a\
+          sed -i '56a\
+              def enableSeparateBuildPerCPUArchitecture = false' android/app/build.gradle
+          sed -i '84a\
               splits {\
                   abi {\
                       reset()\
@@ -37,9 +39,9 @@ jobs:
                       include "arm64-v8a", "armeabi-v7a", "x86", "x86_64"\
                   }\
               }' android/app/build.gradle
-          sed -i '93s/debug/release/' android/app/build.gradle
-          sed -i '99,106d' android/app/build.gradle
-          sed -n -e '120q' -e '84,105p' android/app/build.gradle
+          sed -i '94s/debug/release/' android/app/build.gradle
+          sed -i '100,107d' android/app/build.gradle
+          sed -n -e '120q' -e '85,106p' android/app/build.gradle
           
           # happy.ts ---> change ua
           sed -i "5a\
