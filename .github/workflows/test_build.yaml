@@ -48,8 +48,8 @@ jobs:
           sed -n -e '260q' -e '250, 260p' src/plugins/happy.ts
           
           # create bundle file
-          mkdir android/app/src/main/assets
-          npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
+          #mkdir android/app/src/main/assets
+          #npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
           
           cd android
           ./gradlew assembleRelease 
@@ -61,8 +61,8 @@ jobs:
           name: app-debug.apk
           path: android/app/build/outputs/apk/release/app-release.apk
 
-      - name: Upload Bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: index.bundle
-          path: android/app/src/main/assets/index.android.bundle
+      # - name: Upload Bundle
+        # uses: actions/upload-artifact@v4
+        # with:
+          # name: index.bundle
+          # path: android/app/src/main/assets/index.android.bundle
