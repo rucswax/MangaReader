@@ -28,14 +28,12 @@ jobs:
       - name: build debug application
         run: |
           # build.gradle
-          sed -n -e '60q' -e '55,60p' android/app/build.gradle
           sed -i '56a\
-          def enableSeparateBuildPerCPUArchitecture = true\
-          ' android/app/build.gradle
+          def enableSeparateBuildPerCPUArchitecture = true' android/app/build.gradle
           sed -n -e '60q' -e '55,60p' android/app/build.gradle
           sed -i '86s/debug/release/' android/app/build.gradle
           sed -i '92,99d' android/app/build.gradle
-          sed -n -e '100q' -e '86,96p' android/app/build.gradle
+          sed -n -e '100q' -e '85,96p' android/app/build.gradle
           
           # happy.ts ---> change ua
           sed -i "5a\
